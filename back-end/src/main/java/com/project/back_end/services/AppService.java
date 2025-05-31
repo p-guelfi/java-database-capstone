@@ -1,19 +1,22 @@
-package com.project.back_end.service;
+package com.project.back_end.services;
 
 import com.project.back_end.models.Admin;
 import com.project.back_end.models.Appointment;
 import com.project.back_end.models.Doctor;
-import com.project.back_end.models.Login;
+import com.project_back_end.DTO.Login;
 import com.project.back_end.models.Patient;
 import com.project.back_end.repository.AdminRepository;
+import com.project.back_end.repository.AppointmentRepository; // ADDED THIS IMPORT
 import com.project.back_end.repository.DoctorRepository;
 import com.project.back_end.repository.PatientRepository;
+import com.project.back_end.repository.PrescriptionRepository; // ADDED THIS IMPORT
+import com.project.back_end.services.TokenService; // ENSURE THIS IS PRESENT
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalTime; // This import might not be strictly needed if only used for formatting
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,27 +26,40 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class Service {
+public class AppService {
 
     private final TokenService tokenService;
     private final AdminRepository adminRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
-    private final DoctorService doctorService;
-    private final PatientService patientService;
+    private final DoctorService doctorService; // Keep if AppService delegates to DoctorService
+    private final PatientService patientService; // Keep if AppService delegates to PatientService
+    private final AppointmentRepository appointmentRepository; // Ensure this is declared if used in constructor
+    private final PrescriptionRepository prescriptionRepository; // Ensure this is declared if used in constructor
 
-    public Service(TokenService tokenService,
-                   AdminRepository adminRepository,
-                   DoctorRepository doctorRepository,
-                   PatientRepository patientRepository,
-                   DoctorService doctorService,
-                   PatientService patientService) {
+
+    // CORRECTED CONSTRUCTOR NAME AND PARAMETER LIST
+    public AppService(TokenService tokenService,
+                      AdminRepository adminRepository,
+                      DoctorRepository doctorRepository,
+                      PatientRepository patientRepository,
+                      DoctorService doctorService, // This should be injected if used in AppService
+                      PatientService patientService, // This should be injected if used in AppService
+                      AppointmentRepository appointmentRepository, // If used in AppService
+                      PrescriptionRepository prescriptionRepository) { // If used in AppService
         this.tokenService = tokenService;
         this.adminRepository = adminRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
         this.doctorService = doctorService;
         this.patientService = patientService;
+        this.appointmentRepository = appointmentRepository; // Assign it
+        this.prescriptionRepository = prescriptionRepository; // Assign it
+    }
+
+    // This is the added method!
+    public TokenService getTokenService() {
+        return tokenService;
     }
 
     public ResponseEntity<Map<String, String>> validateToken(String token, String userRole, Long userId) {
@@ -132,10 +148,12 @@ public class Service {
             return -1;
         }
 
+        // Assuming appointment.getAppointmentTime() is a LocalDateTime
         String appointmentTimeSlot = appointment.getAppointmentTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
         LocalDate appointmentDate = appointment.getAppointmentTime().toLocalDate();
 
         try {
+            // This calls DoctorService, so DoctorService needs to be injected into AppService
             List<String> availableSlots = doctorService.getDoctorAvailability(
                 appointment.getDoctor().getId(),
                 appointmentDate
@@ -149,7 +167,7 @@ public class Service {
         } catch (DateTimeParseException e) {
             return -2;
         } catch (Exception e) {
-            return 0;
+            return 0; // Generic error
         }
     }
 
@@ -172,6 +190,7 @@ public class Service {
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
 
+        // Delegating to patientService for actual filtering logic
         if ((condition != null && !condition.trim().isEmpty()) && (name != null && !name.trim().isEmpty())) {
             return patientService.filterByDoctorAndCondition(condition, name, patientId);
         } else if (condition != null && !condition.trim().isEmpty()) {
@@ -179,6 +198,7 @@ public class Service {
         } else if (name != null && !name.trim().isEmpty()) {
             return patientService.filterByDoctor(name, patientId);
         } else {
+            // If no filters, return all appointments for the patient
             return patientService.getPatientAppointment(patientId, token);
         }
     }

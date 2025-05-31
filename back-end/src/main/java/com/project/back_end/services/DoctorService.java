@@ -1,8 +1,8 @@
-package com.project.back_end.service; // Your confirmed service package
+package com.project.back_end.services; // Your confirmed service package
 
 import com.project.back_end.models.Appointment;
 import com.project.back_end.models.Doctor;
-import com.project.back_end.models.Login; // Assuming your Login DTO is in models
+import com.project_back_end.DTO.Login;
 import com.project.back_end.repository.AppointmentRepository;
 import com.project.back_end.repository.DoctorRepository;
 import org.springframework.http.HttpStatus;
@@ -10,21 +10,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service // Marks this class as a Spring Service component
 public class DoctorService {
@@ -33,10 +30,10 @@ public class DoctorService {
     private final AppointmentRepository appointmentRepository;
     private final TokenService tokenService; // Injected for token generation (placeholder)
 
-    // Constructor Injection (PasswordEncoder removed)
+    // Constructor Injection
     public DoctorService(DoctorRepository doctorRepository,
                          AppointmentRepository appointmentRepository,
-                         TokenService tokenService) { // PasswordEncoder is no longer a dependency here
+                         TokenService tokenService) {
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
         this.tokenService = tokenService;
@@ -58,7 +55,8 @@ public class DoctorService {
         }
         Doctor doctor = doctorOptional.get();
 
-        Set<String> doctorAvailableSlots = doctor.getAvailableTimes(); // Assuming this returns HH:MM strings
+        // Ensure doctor.getAvailableTimes() returns a Set<String>
+        Set<String> doctorAvailableSlots = doctor.getAvailableTimes();
 
         // Get all appointments for this doctor on this specific date
         LocalDateTime startOfDay = date.atStartOfDay();
@@ -134,8 +132,15 @@ public class DoctorService {
             existingDoctor.setEmail(doctor.getEmail());
             existingDoctor.setPhone(doctor.getPhone());
             existingDoctor.setSpecialty(doctor.getSpecialty());
-            existingDoctor.setAvailableDays(doctor.getAvailableDays()); // Assuming Set<DayOfWeek>
-            existingDoctor.setAvailableTimes(doctor.getAvailableTimes()); // Assuming Set<String>
+
+            // Ensure availableDays is handled correctly, assuming it's Set<DayOfWeek> in Doctor model
+            if (doctor.getAvailableDays() != null) {
+                existingDoctor.setAvailableDays(doctor.getAvailableDays());
+            }
+            // Ensure availableTimes is handled correctly, assuming it's Set<String> in Doctor model
+            if (doctor.getAvailableTimes() != null) {
+                existingDoctor.setAvailableTimes(doctor.getAvailableTimes());
+            }
 
             doctorRepository.save(existingDoctor);
             return 1; // Success
@@ -235,8 +240,8 @@ public class DoctorService {
      */
     public Map<String, Object> findDoctorByName(String name) {
         Map<String, Object> response = new HashMap<>();
-        // Assuming DoctorRepository has this method: findByNameContainingIgnoreCase
-        List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCase(name);
+        // CHANGED: Using findByNameLike as defined in DoctorRepository
+        List<Doctor> doctors = doctorRepository.findByNameLike(name);
 
         if (doctors.isEmpty()) {
             response.put("message", "No doctors found with that name.");
@@ -291,7 +296,8 @@ public class DoctorService {
      */
     public Map<String, Object> filterDoctorByNameAndTime(String name, String amOrPm) {
         Map<String, Object> response = new HashMap<>();
-        List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCase(name); // First filter by name
+        // CHANGED: Using findByNameLike as defined in DoctorRepository
+        List<Doctor> doctors = doctorRepository.findByNameLike(name); // First filter by name
         doctors = filterDoctorByTime(doctors, amOrPm); // Then filter by time
 
         if (doctors.isEmpty()) {
@@ -384,7 +390,6 @@ public class DoctorService {
         return response;
     }
 
-
     /**
      * Private helper method to filter a list of doctors by their available times (AM/PM).
      * Assumes available times in Doctor are strings like "HH:MM".
@@ -401,20 +406,26 @@ public class DoctorService {
         final LocalTime NOON = LocalTime.of(12, 0); // Define noon once
 
         return doctors.stream()
-                .filter(doctor -> doctor.getAvailableTimes().stream().anyMatch(slot -> {
-                    try {
-                        LocalTime slotTime = LocalTime.parse(slot, DateTimeFormatter.ofPattern("HH:mm"));
-                        if ("AM".equalsIgnoreCase(amOrPm)) {
-                            return slotTime.isBefore(NOON); // Before 12:00 PM
-                        } else if ("PM".equalsIgnoreCase(amOrPm)) {
-                            return !slotTime.isBefore(NOON); // 12:00 PM and after
-                        }
-                        return false; // Invalid amOrPm value
-                    } catch (java.time.format.DateTimeParseException e) {
-                        System.err.println("Warning: Invalid time format in Doctor availableTimes: " + slot);
-                        return false; // Skip invalid time formats
+                .filter(doctor -> {
+                    // Handle potential null availableTimes to prevent NullPointerException
+                    if (doctor.getAvailableTimes() == null) {
+                        return false;
                     }
-                }))
+                    return doctor.getAvailableTimes().stream().anyMatch(slot -> {
+                        try {
+                            LocalTime slotTime = LocalTime.parse(slot, DateTimeFormatter.ofPattern("HH:mm"));
+                            if ("AM".equalsIgnoreCase(amOrPm)) {
+                                return slotTime.isBefore(NOON); // Before 12:00 PM
+                            } else if ("PM".equalsIgnoreCase(amOrPm)) {
+                                return !slotTime.isBefore(NOON); // 12:00 PM and after
+                            }
+                            return false; // Invalid amOrPm value
+                        } catch (DateTimeParseException e) {
+                            System.err.println("Warning: Invalid time format in Doctor availableTimes for doctor ID " + doctor.getId() + ": " + slot);
+                            return false; // Skip invalid time formats
+                        }
+                    });
+                })
                 .collect(Collectors.toList());
     }
 }

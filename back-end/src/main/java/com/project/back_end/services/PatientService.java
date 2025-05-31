@@ -1,4 +1,4 @@
-package com.project.back_end.service;
+package com.project.back_end.services;
 
 import com.project.back_end.dto.AppointmentDTO;
 import com.project.back_end.models.Appointment;

@@ -1,4 +1,4 @@
-package com.project.back_end; // Assuming this is still your base package for DTOs
+package com.project_back_end.DTO; // Assuming this is still your base package for DTOs
 
 // If you chose to put DTOs in a sub-package like 'com.project.back_end.dto',
 // then change the package declaration accordingly:

@@ -1,22 +1,25 @@
-package com.project.back_end.controller; // THIS IS YOUR CORRECT BASE PACKAGE + .controller
+package com.project.back_end.controller;
 
-import com.project.back_end.service.AuthService; // THIS IS YOUR CORRECT BASE PACKAGE + .service
+import com.project.back_end.services.AppService; // Corrected import
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Map;
 
 @Controller
+@RequestMapping // You might want to add a base request mapping here if all dashboard endpoints start with something common, e.g., "/dashboard"
 public class DashboardController {
 
-    // Autowire the AuthService. We'll assume this service exists or will be created soon.
-    private final AuthService authService;
+    private final AppService appService; // Field is correctly named appService
 
     @Autowired
-    public DashboardController(AuthService authService) {
-        this.authService = authService;
+    public DashboardController(AppService appService) { // Constructor parameter and assignment corrected
+        this.appService = appService;
     }
 
     /**
@@ -26,9 +29,14 @@ public class DashboardController {
      */
     @GetMapping("/adminDashboard/{token}")
     public String adminDashboard(@PathVariable String token) {
-        Map<String, String> validationResult = authService.validateToken(token, "admin");
+        // Your AppService.validateToken expects: String token, String userRole, Long userId
+        // Here, we have the token and the role "ADMIN".
+        // You'll need to determine how to get the userId for validation.
+        // For a simple view controller, you might validate just role, or extract userId from the token itself.
+        // For now, userId is passed as null, which might need adjustment based on your TokenService.validateToken implementation.
+        ResponseEntity<Map<String, String>> validationResponse = appService.validateToken(token, "ADMIN", null); // Usage corrected to appService
 
-        if (validationResult.isEmpty()) { // If the map is empty, token is valid
+        if (validationResponse.getStatusCode() == HttpStatus.OK) {
             // Thymeleaf will resolve this to src/main/resources/templates/admin/adminDashboard.html
             return "admin/adminDashboard";
         } else {
@@ -44,9 +52,10 @@ public class DashboardController {
      */
     @GetMapping("/doctorDashboard/{token}")
     public String doctorDashboard(@PathVariable String token) {
-        Map<String, String> validationResult = authService.validateToken(token, "doctor");
+        // Similar to adminDashboard, adjust userId extraction as necessary
+        ResponseEntity<Map<String, String>> validationResponse = appService.validateToken(token, "DOCTOR", null); // Usage corrected to appService
 
-        if (validationResult.isEmpty()) { // If the map is empty, token is valid
+        if (validationResponse.getStatusCode() == HttpStatus.OK) {
             // Thymeleaf will resolve this to src/main/resources/templates/doctor/doctorDashboard.html
             return "doctor/doctorDashboard";
         } else {

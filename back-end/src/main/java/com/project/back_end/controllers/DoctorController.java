@@ -1,9 +1,9 @@
 package com.project.back_end.controller;
 
 import com.project.back_end.models.Doctor;
-import com.project.back_end.models.Login;
-import com.project.back_end.service.DoctorService; // Your DoctorService
-import com.project.back_end.service.Service;      // Your central Service for validation
+import com.project_back_end.DTO.Login;
+import com.project.back_end.services.DoctorService; // Your DoctorService
+import com.project.back_end.services.AppService;      // Your central Service for validation
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +17,12 @@ import java.util.Map;
 public class DoctorController {
 
     private final DoctorService doctorService;
-    private final Service service; // Injected for token validation and filtering
+    private final AppService appService; // Injected for token validation and filtering // Changed field name
 
     // Constructor injection for dependencies
-    public DoctorController(DoctorService doctorService, Service service) {
+    public DoctorController(DoctorService doctorService, AppService appService) { // Changed parameter type and name
         this.doctorService = doctorService;
-        this.service = service;
+        this.appService = appService; // Changed field assignment
     }
 
     /**
@@ -58,12 +58,12 @@ public class DoctorController {
         // We'll extract the actual userId from the token to validate against.
         Long userIdFromToken;
         try {
-            userIdFromToken = service.tokenService.getUserIdFromToken(token);
+            userIdFromToken = appService.getTokenService().getUserIdFromToken(token); // Changed appService.getTokenService()
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify user ID."), HttpStatus.UNAUTHORIZED);
         }
 
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, user.toUpperCase(), userIdFromToken);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, user.toUpperCase(), userIdFromToken); // Changed appService.validateToken()
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(
                 Map.of("message", "Unauthorized access. " + tokenValidationResponse.getBody().getOrDefault("message", "Invalid token.")),
@@ -112,12 +112,12 @@ public class DoctorController {
         // Validate token for an ADMIN
         Long adminId;
         try {
-            adminId = service.tokenService.getUserIdFromToken(token);
+            adminId = appService.getTokenService().getUserIdFromToken(token); // Changed appService.getTokenService()
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify admin."), HttpStatus.UNAUTHORIZED);
         }
 
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "ADMIN", adminId);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "ADMIN", adminId); // Changed appService.validateToken()
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(tokenValidationResponse.getBody(), tokenValidationResponse.getStatusCode());
         }
@@ -148,12 +148,12 @@ public class DoctorController {
         // Validate token for an ADMIN
         Long adminId;
         try {
-            adminId = service.tokenService.getUserIdFromToken(token);
+            adminId = appService.getTokenService().getUserIdFromToken(token); // Changed appService.getTokenService()
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify admin."), HttpStatus.UNAUTHORIZED);
         }
 
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "ADMIN", adminId);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "ADMIN", adminId); // Changed appService.validateToken()
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(tokenValidationResponse.getBody(), tokenValidationResponse.getStatusCode());
         }
@@ -184,12 +184,12 @@ public class DoctorController {
         // Validate token for an ADMIN
         Long adminId;
         try {
-            adminId = service.tokenService.getUserIdFromToken(token);
+            adminId = appService.getTokenService().getUserIdFromToken(token); // Changed appService.getTokenService()
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify admin."), HttpStatus.UNAUTHORIZED);
         }
 
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "ADMIN", adminId);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "ADMIN", adminId); // Changed appService.validateToken()
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(tokenValidationResponse.getBody(), tokenValidationResponse.getStatusCode());
         }
@@ -221,7 +221,7 @@ public class DoctorController {
             @PathVariable(required = false) String speciality) {
 
         // Use the central Service's filterDoctor method
-        Map<String, Object> filteredDoctors = service.filterDoctor(name, speciality, time);
+        Map<String, Object> filteredDoctors = appService.filterDoctor(name, speciality, time); // Changed appService.filterDoctor()
 
         if (filteredDoctors.containsKey("doctors") && ((List<?>) filteredDoctors.get("doctors")).isEmpty()) {
             return new ResponseEntity<>(filteredDoctors, HttpStatus.NOT_FOUND); // No doctors found

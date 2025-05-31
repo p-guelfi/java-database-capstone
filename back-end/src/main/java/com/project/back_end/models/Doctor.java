@@ -3,7 +3,9 @@ package com.project.back_end.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
+import java.time.DayOfWeek; // Import for DayOfWeek enum if you use it for availableDays
+import java.util.Set; // Import for Set
+import java.util.List; // Keep if you still have other List fields, but for availableTimes, it's now Set
 
 @Entity
 public class Doctor {
@@ -33,8 +35,16 @@ public class Doctor {
     @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits")
     private String phone;
 
-    @ElementCollection
-    private List<String> availableTimes;
+    @ElementCollection(fetch = FetchType.EAGER) // Often EAGER for small collections like this
+    @CollectionTable(name = "doctor_available_times", joinColumns = @JoinColumn(name = "doctor_id"))
+    @Column(name = "time_slot")
+    private Set<String> availableTimes; // CHANGED to Set<String>
+
+    @ElementCollection(fetch = FetchType.EAGER) // New field for available days
+    @CollectionTable(name = "doctor_available_days", joinColumns = @JoinColumn(name = "doctor_id"))
+    @Enumerated(EnumType.STRING) // Store DayOfWeek enum as String in DB
+    @Column(name = "day_of_week")
+    private Set<DayOfWeek> availableDays; // ADDED THIS FIELD (assuming DayOfWeek or String)
 
     // Getters and Setters
 
@@ -86,11 +96,20 @@ public class Doctor {
         this.phone = phone;
     }
 
-    public List<String> getAvailableTimes() {
+    public Set<String> getAvailableTimes() { // CHANGED return type
         return availableTimes;
     }
 
-    public void setAvailableTimes(List<String> availableTimes) {
+    public void setAvailableTimes(Set<String> availableTimes) { // CHANGED parameter type
         this.availableTimes = availableTimes;
+    }
+
+    // ADDED GETTERS AND SETTERS FOR availableDays
+    public Set<DayOfWeek> getAvailableDays() {
+        return availableDays;
+    }
+
+    public void setAvailableDays(Set<DayOfWeek> availableDays) {
+        this.availableDays = availableDays;
     }
 }

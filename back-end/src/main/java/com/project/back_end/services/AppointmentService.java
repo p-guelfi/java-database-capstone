@@ -1,4 +1,4 @@
-package com.project.back_end.service; // Your confirmed service package
+package com.project.back_end.services; // Your confirmed service package
 
 import com.project.back_end.models.Appointment;
 import com.project.back_end.models.Doctor;

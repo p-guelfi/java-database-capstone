@@ -1,8 +1,8 @@
 package com.project.back_end.controller;
 
 import com.project.back_end.models.Prescription;
-import com.project.back_end.service.PrescriptionService; // Your PrescriptionService
-import com.project.back_end.service.Service;          // Your central Service for token validation
+import com.project.back_end.services.PrescriptionService; // Your PrescriptionService
+import com.project.back_end.services.AppService;          // Your central Service for token validation
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +14,12 @@ import java.util.Map;
 public class PrescriptionController {
 
     private final PrescriptionService prescriptionService;
-    private final Service service; // Injected for token validation
+    private final AppService appService; // Injected for token validation
 
     // Constructor injection for dependencies
-    public PrescriptionController(PrescriptionService prescriptionService, Service service) {
+    public PrescriptionController(PrescriptionService prescriptionService, AppService appService) { // CHANGED: parameter type and name
         this.prescriptionService = prescriptionService;
-        this.service = service;
+        this.appService = appService; // CHANGED: field assignment
     }
 
     /**
@@ -38,25 +38,21 @@ public class PrescriptionController {
         // Extract doctor ID from token for validation
         Long doctorId;
         try {
-            doctorId = service.tokenService.getUserIdFromToken(token);
+            doctorId = appService.getTokenService().getUserIdFromToken(token); // CHANGED: appService.getTokenService()
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify doctor."), HttpStatus.UNAUTHORIZED);
         }
 
         // Validate the token to ensure the request is from a valid doctor
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "DOCTOR", doctorId);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "DOCTOR", doctorId); // CHANGED: appService.validateToken()
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(tokenValidationResponse.getBody(), tokenValidationResponse.getStatusCode());
         }
 
         // Delegate to PrescriptionService to save the prescription
-        Map<String, String> saveResult = prescriptionService.savePrescription(prescription);
-
-        if ("Prescription saved successfully.".equals(saveResult.get("message"))) {
-            return new ResponseEntity<>(saveResult, HttpStatus.CREATED); // 201 Created
-        } else {
-            return new ResponseEntity<>(saveResult, HttpStatus.INTERNAL_SERVER_ERROR); // Or other appropriate status based on PrescriptionService's error types
-        }
+        // ASSUMPTION: prescriptionService.savePrescription now returns ResponseEntity<Map<String, String>>
+        // If it returns just a Map, you'll need to wrap it.
+        return prescriptionService.savePrescription(prescription); // CHANGED: directly returning the ResponseEntity
     }
 
     /**
@@ -75,13 +71,13 @@ public class PrescriptionController {
         // Extract doctor ID from token for validation
         Long doctorId;
         try {
-            doctorId = service.tokenService.getUserIdFromToken(token);
+            doctorId = appService.getTokenService().getUserIdFromToken(token); // CHANGED: appService.getTokenService()
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify doctor."), HttpStatus.UNAUTHORIZED);
         }
 
         // Validate the token to ensure the request is from a valid doctor
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "DOCTOR", doctorId);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "DOCTOR", doctorId); // CHANGED: appService.validateToken()
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(
                 Map.of("message", "Unauthorized access. " + tokenValidationResponse.getBody().getOrDefault("message", "Invalid token.")),
@@ -90,12 +86,8 @@ public class PrescriptionController {
         }
 
         // Delegate to PrescriptionService to get the prescription
-        Map<String, Object> prescriptionResult = prescriptionService.getPrescription(appointmentId);
-
-        if (prescriptionResult.containsKey("prescription")) {
-            return new ResponseEntity<>(prescriptionResult, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(prescriptionResult, HttpStatus.NOT_FOUND); // No prescription found
-        }
+        // ASSUMPTION: prescriptionService.getPrescription now returns ResponseEntity<Map<String, Object>>
+        // If it returns just a Map, you'll need to wrap it.
+        return prescriptionService.getPrescription(appointmentId); // CHANGED: directly returning the ResponseEntity
     }
 }

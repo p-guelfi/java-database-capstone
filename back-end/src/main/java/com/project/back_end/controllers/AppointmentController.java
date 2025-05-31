@@ -1,8 +1,9 @@
 package com.project.back_end.controller;
 
 import com.project.back_end.models.Appointment;
-import com.project.back_end.service.AppointmentService; // Your AppointmentService
-import com.project.back_end.service.Service;          // Your central Service for validation
+import com.project.back_end.models.Patient; // ADDED THIS IMPORT
+import com.project.back_end.services.AppointmentService; // Your AppointmentService
+import com.project.back_end.services.AppService;          // Your central Service for validation
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +16,12 @@ import java.util.Map;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
-    private final Service service; // Injected for token and appointment validation
+    private final AppService appService; // Renamed to appService
 
     // Constructor injection for dependencies
-    public AppointmentController(AppointmentService appointmentService, Service service) {
+    public AppointmentController(AppointmentService appointmentService, AppService appService) { // RENAMED PARAMETER TYPE AND NAME
         this.appointmentService = appointmentService;
-        this.service = service;
+        this.appService = appService; // RENAMED FIELD ASSIGNMENT
     }
 
     /**
@@ -39,13 +40,13 @@ public class AppointmentController {
             @PathVariable String token) {
 
         // Validate token for a doctor
-        // Note: The 'service.validateToken' assumes it needs userId and userRole.
+        // Note: The 'appService.validateToken' assumes it needs userId and userRole.
         // For this endpoint, we'd typically get the doctor's ID from the token first.
-        // Assuming service.validateToken is flexible enough, or we need to adjust its usage here.
+        // Assuming appService.validateToken is flexible enough, or we need to adjust its usage here.
         // For now, I'll pass a placeholder userId (0L) and rely on the role check primarily.
-        // In a real app, you'd extract doctor ID from the token via tokenService.getUserIdFromToken(token)
+        // In a real app, you'd extract doctor ID from the token via appService.getTokenService().getUserIdFromToken(token)
         // and then pass that actual doctor ID to validateToken.
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "DOCTOR", 0L); // Placeholder ID
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "DOCTOR", 0L); // CHANGED 'service' to 'appService'
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(
                 Map.of("message", "Unauthorized access. " + tokenValidationResponse.getBody().getOrDefault("message", "Invalid token.")),
@@ -79,12 +80,12 @@ public class AppointmentController {
         // Similar to getAppointments, extract patient ID from token before validating
         Long patientId = null;
         try {
-            patientId = service.tokenService.getUserIdFromToken(token); // Access tokenService through central service
+            patientId = appService.getTokenService().getUserIdFromToken(token); // CHANGED 'service.tokenService' to 'appService.getTokenService()'
         } catch (Exception e) {
              return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify patient."), HttpStatus.UNAUTHORIZED);
         }
 
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "PATIENT", patientId);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "PATIENT", patientId); // CHANGED 'service' to 'appService'
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(tokenValidationResponse.getBody(), tokenValidationResponse.getStatusCode());
         }
@@ -95,7 +96,7 @@ public class AppointmentController {
         }
 
         // Validate appointment details (e.g., doctor availability, overlaps) using central Service
-        int validationResult = service.validateAppointment(appointment);
+        int validationResult = appService.validateAppointment(appointment); // CHANGED 'service' to 'appService'
 
         if (validationResult == -1) {
             return new ResponseEntity<>(Map.of("message", "Doctor does not exist."), HttpStatus.BAD_REQUEST);
@@ -130,12 +131,12 @@ public class AppointmentController {
 
         Long patientId = null;
         try {
-            patientId = service.tokenService.getUserIdFromToken(token);
+            patientId = appService.getTokenService().getUserIdFromToken(token); // CHANGED 'service.tokenService' to 'appService.getTokenService()'
         } catch (Exception e) {
              return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify patient."), HttpStatus.UNAUTHORIZED);
         }
 
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "PATIENT", patientId);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "PATIENT", patientId); // CHANGED 'service' to 'appService'
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(tokenValidationResponse.getBody(), tokenValidationResponse.getStatusCode());
         }
@@ -174,12 +175,12 @@ public class AppointmentController {
         // So, we just need to ensure the token itself is valid for a patient role.
         Long patientId = null;
         try {
-            patientId = service.tokenService.getUserIdFromToken(token);
+            patientId = appService.getTokenService().getUserIdFromToken(token); // CHANGED 'service.tokenService' to 'appService.getTokenService()'
         } catch (Exception e) {
              return new ResponseEntity<>(Map.of("message", "Invalid token. Could not identify patient."), HttpStatus.UNAUTHORIZED);
         }
 
-        ResponseEntity<Map<String, String>> tokenValidationResponse = service.validateToken(token, "PATIENT", patientId);
+        ResponseEntity<Map<String, String>> tokenValidationResponse = appService.validateToken(token, "PATIENT", patientId); // CHANGED 'service' to 'appService'
         if (tokenValidationResponse.getStatusCode() != HttpStatus.OK) {
             return new ResponseEntity<>(tokenValidationResponse.getBody(), tokenValidationResponse.getStatusCode());
         }

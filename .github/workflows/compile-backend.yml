@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Compile Backend Code
     steps:
-      - uses actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up JDK
         uses: actions/setup-java@v4

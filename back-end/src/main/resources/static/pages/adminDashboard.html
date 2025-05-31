@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/adminDashboard.css" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+
+    <script type="module" src="../js/components/header.js" defer></script>
+    <script type="module" src="../js/components/footer.js" defer></script>
+    <script type="module" src="../js/components/modals.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <div id="header"></div> <main class="main-content">
+                <h2 class="page-title">Admin Dashboard</h2>
+
+                <div class="controls-section">
+                    <input type="text" id="search-doctors" placeholder="Search doctors by name, email, specialty, or phone..." class="input-field" />
+
+                    <div class="filters">
+                        <label for="filter-specialty">Filter by Specialty:</label>
+                        <select id="filter-specialty" class="select-dropdown">
+                            <option value="All">All Specialties</option>
+                            <option value="Cardiology">Cardiology</option>
+                            <option value="Dermatology">Dermatology</option>
+                            <option value="Neurology">Neurology</option>
+                            <option value="Pediatrics">Pediatrics</option>
+                            <option value="Orthopedics">Orthopedics</option>
+                            </select>
+                    </div>
+                    <button id="add-doctor-btn" class="button primary-button">Add Doctor</button>
+                </div>
+
+                <div id="doctor-cards-container" class="doctor-grid">
+                    <p>Loading doctors...</p>
+                </div>
+            </main>
+
+            <div id="footer"></div> </div>
+    </div>
+
+    <div id="addDoctorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('addDoctorModal')">&times;</span>
+            <h2>Add/Edit Doctor</h2>
+            <form id="add-doctor-form">
+                <input type="hidden" id="add-doctor-id"> <label for="doctor-name">Name:</label>
+                <input type="text" id="doctor-name" required class="input-field">
+
+                <label for="doctor-email">Email:</label>
+                <input type="email" id="doctor-email" required class="input-field">
+
+                <label for="doctor-specialty">Specialty:</label>
+                <input type="text" id="doctor-specialty" class="input-field">
+
+                <label for="doctor-phone">Phone:</label>
+                <input type="text" id="doctor-phone" class="input-field">
+
+                <label for="doctor-bio">Bio:</label>
+                <textarea id="doctor-bio" rows="4" class="input-field"></textarea>
+
+                <button type="submit" class="button primary-button">Save Doctor</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="../js/adminDashboard.js" defer></script>
+    <script type="module">
+        import { closeModal } from '../js/components/modals.js';
+        window.closeModal = closeModal;
+    </script>
+</body>
+</html>

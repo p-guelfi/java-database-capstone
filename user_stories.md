@@ -15,7 +15,7 @@ _As a [user role], I want [feature/goal], so that [reason]._
 
 ---
 
-# Admin User Stories
+## Admin User Stories
 
 ### User Story 1
 
@@ -97,7 +97,7 @@ _As an admin, I want to run a stored procedure in MySQL CLI to get the number of
 
 ---
 
-# Patient User Stories
+## Patient User Stories
 
 ### User Story 1
 
@@ -195,7 +195,7 @@ _As a patient, I want to view my upcoming appointments, so that I can prepare ac
 
 ---
 
-# Doctor User Stories
+## Doctor User Stories
 
 ### User Story 1
 

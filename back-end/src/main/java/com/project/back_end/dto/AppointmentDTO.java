@@ -1,11 +1,10 @@
-package com.project.back_end; // Corrected package declaration
+package com.project.back_end.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class AppointmentDTO {
-
     private Long id;
     private Long doctorId;
     private String doctorName;
@@ -15,17 +14,14 @@ public class AppointmentDTO {
     private String patientPhone;
     private String patientAddress;
     private LocalDateTime appointmentTime;
-    private int status;
-
-    // Derived fields
+    private int status; // e.g., 0 for scheduled, 1 for completed
     private LocalDate appointmentDate;
     private LocalTime appointmentTimeOnly;
-    private LocalDateTime endTime;
+    private LocalDateTime endTime; // Calculated as appointmentTime + 1 hour
 
-    // Constructor
-    public AppointmentDTO(Long id, Long doctorId, String doctorName,
-                          Long patientId, String patientName, String patientEmail,
-                          String patientPhone, String patientAddress,
+    // Constructor to initialize fields and compute derived fields
+    public AppointmentDTO(Long id, Long doctorId, String doctorName, Long patientId, String patientName,
+                          String patientEmail, String patientPhone, String patientAddress,
                           LocalDateTime appointmentTime, int status) {
         this.id = id;
         this.doctorId = doctorId;
@@ -39,15 +35,18 @@ public class AppointmentDTO {
         this.status = status;
 
         // Automatically compute derived fields
-        if (appointmentTime != null) {
-            this.appointmentDate = appointmentTime.toLocalDate();
-            this.appointmentTimeOnly = appointmentTime.toLocalTime();
-            this.endTime = appointmentTime.plusHours(1);
+        if (this.appointmentTime != null) {
+            this.appointmentDate = this.appointmentTime.toLocalDate();
+            this.appointmentTimeOnly = this.appointmentTime.toLocalTime();
+            this.endTime = this.appointmentTime.plusHours(1); // Assuming 1-hour appointments
         }
     }
 
-    // Getter methods for all fields
+    // Default constructor (often needed for JSON deserialization by frameworks like Spring)
+    public AppointmentDTO() {
+    }
 
+    // --- Getter Methods ---
     public Long getId() {
         return id;
     }
@@ -98,5 +97,58 @@ public class AppointmentDTO {
 
     public LocalDateTime getEndTime() {
         return endTime;
+    }
+
+    // --- Setter Methods (Optional, but useful if creating DTO from setters or partial updates) ---
+    // Frameworks like Spring's @RequestBody often use setters for deserialization.
+    // If you plan to create AppointmentDTO objects from incoming JSON requests, you'll need setters.
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setDoctorId(Long doctorId) {
+        this.doctorId = doctorId;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public void setPatientEmail(String patientEmail) {
+        this.patientEmail = patientEmail;
+    }
+
+    public void setPatientPhone(String patientPhone) {
+        this.patientPhone = patientPhone;
+    }
+
+    public void setPatientAddress(String patientAddress) {
+        this.patientAddress = patientAddress;
+    }
+
+    public void setAppointmentTime(LocalDateTime appointmentTime) {
+        this.appointmentTime = appointmentTime;
+        // Re-compute derived fields if appointmentTime is set after construction
+        if (this.appointmentTime != null) {
+            this.appointmentDate = this.appointmentTime.toLocalDate();
+            this.appointmentTimeOnly = this.appointmentTime.toLocalTime();
+            this.endTime = this.appointmentTime.plusHours(1);
+        } else {
+            this.appointmentDate = null;
+            this.appointmentTimeOnly = null;
+            this.endTime = null;
+        }
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

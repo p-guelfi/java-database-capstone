@@ -1,4 +1,4 @@
-package com.project.back_end.controller;
+package com.project.back_end.controllers;
 
 import com.project.back_end.models.Doctor;
 import com.project_back_end.DTO.Login;

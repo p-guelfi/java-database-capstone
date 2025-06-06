@@ -3,27 +3,24 @@ package com.project.back_end.services;
 import com.project.back_end.models.Admin;
 import com.project.back_end.models.Appointment;
 import com.project.back_end.models.Doctor;
-import com.project_back_end.DTO.Login;
+import com.project_back_end.DTO.Login; // Assuming 'Login' DTO is used for Doctor email/password
 import com.project.back_end.models.Patient;
 import com.project.back_end.repository.AdminRepository;
-import com.project.back_end.repository.AppointmentRepository; // ADDED THIS IMPORT
+import com.project.back_end.repository.AppointmentRepository;
 import com.project.back_end.repository.DoctorRepository;
 import com.project.back_end.repository.PatientRepository;
-import com.project.back_end.repository.PrescriptionRepository; // ADDED THIS IMPORT
-import com.project.back_end.services.TokenService; // ENSURE THIS IS PRESENT
+import com.project.back_end.repository.PrescriptionRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime; // This import might not be strictly needed if only used for formatting
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AppService {
@@ -32,29 +29,27 @@ public class AppService {
     private final AdminRepository adminRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
-    private final DoctorService doctorService; // Keep if AppService delegates to DoctorService
-    private final PatientService patientService; // Keep if AppService delegates to PatientService
-    private final AppointmentRepository appointmentRepository; // Ensure this is declared if used in constructor
-    private final PrescriptionRepository prescriptionRepository; // Ensure this is declared if used in constructor
+    private final DoctorService doctorService;
+    private final PatientService patientService;
+    private final AppointmentRepository appointmentRepository;
+    private final PrescriptionRepository prescriptionRepository;
 
-
-    // CORRECTED CONSTRUCTOR NAME AND PARAMETER LIST
     public AppService(TokenService tokenService,
                       AdminRepository adminRepository,
                       DoctorRepository doctorRepository,
                       PatientRepository patientRepository,
-                      DoctorService doctorService, // This should be injected if used in AppService
-                      PatientService patientService, // This should be injected if used in AppService
-                      AppointmentRepository appointmentRepository, // If used in AppService
-                      PrescriptionRepository prescriptionRepository) { // If used in AppService
+                      DoctorService doctorService,
+                      PatientService patientService,
+                      AppointmentRepository appointmentRepository,
+                      PrescriptionRepository prescriptionRepository) {
         this.tokenService = tokenService;
         this.adminRepository = adminRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
         this.doctorService = doctorService;
         this.patientService = patientService;
-        this.appointmentRepository = appointmentRepository; // Assign it
-        this.prescriptionRepository = prescriptionRepository; // Assign it
+        this.appointmentRepository = appointmentRepository;
+        this.prescriptionRepository = prescriptionRepository;
     }
 
     // This is the added method!
@@ -90,6 +85,13 @@ public class AppService {
         }
 
         Admin admin = existingAdmin.get();
+        // Assuming password validation happens here for Admin
+        // If you're using plain text passwords, you'll need to add a check:
+        // if (!receivedAdmin.getPassword().equals(admin.getPassword())) {
+        //     response.put("message", "Invalid credentials!");
+        //     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        // }
+
 
         try {
             String token = tokenService.generateToken(admin.getId(), "ADMIN");
@@ -107,6 +109,51 @@ public class AppService {
         }
     }
 
+    // *** ADD THIS NEW METHOD FOR DOCTOR LOGIN VALIDATION ***
+    public ResponseEntity<Map<String, String>> validateDoctorLogin(Login login) { // Using Login DTO for email/password
+        Map<String, String> response = new HashMap<>();
+        Optional<Doctor> doctorOptional = doctorRepository.findByEmail(login.getEmail());
+
+        if (doctorOptional.isEmpty()) {
+            response.put("message", "Invalid credentials: Doctor not found by email.");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        Doctor doctor = doctorOptional.get();
+
+        // TODO: Implement password validation here
+        // IMPORTANT: You MUST validate the password!
+        // If you are using BCryptPasswordEncoder, it would be:
+        // if (!passwordEncoder.matches(login.getPassword(), doctor.getPassword())) {
+        //     response.put("message", "Invalid credentials!");
+        //     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        // }
+        // If using plain text (NOT RECOMMENDED for production):
+        // if (!login.getPassword().equals(doctor.getPassword())) {
+        //     response.put("message", "Invalid credentials!");
+        //     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        // }
+
+
+        try {
+            // Assuming your tokenService can generate tokens for Doctors
+            String token = tokenService.generateToken(doctor.getId(), "DOCTOR"); // Use DOCTOR role
+            response.put("message", "Doctor login successful.");
+            response.put("token", token);
+            response.put("userId", doctor.getId().toString());
+            response.put("role", "doctor");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (UnsupportedOperationException e) {
+            response.put("message", "Token generation service not fully implemented yet.");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            response.put("message", "Failed to generate token for doctor: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    // ******************************************************
+
+
     public ResponseEntity<Map<String, String>> validatePatientLogin(Login login) {
         Map<String, String> response = new HashMap<>();
         Optional<Patient> patientOptional = patientRepository.findByEmail(login.getEmail());
@@ -117,6 +164,12 @@ public class AppService {
         }
 
         Patient patient = patientOptional.get();
+
+        // TODO: Implement password validation here for Patient, similar to Doctor
+        // if (!login.getPassword().equals(patient.getPassword())) {
+        //     response.put("message", "Invalid credentials!");
+        //     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        // }
 
         try {
             String token = tokenService.generateToken(patient.getId(), "PATIENT");
@@ -148,12 +201,10 @@ public class AppService {
             return -1;
         }
 
-        // Assuming appointment.getAppointmentTime() is a LocalDateTime
-        String appointmentTimeSlot = appointment.getAppointmentTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        String appointmentTimeSlot = appointment.getAppointmentTime().format(DateTimeFormatter.ofPattern("HH:mm"));
         LocalDate appointmentDate = appointment.getAppointmentTime().toLocalDate();
 
         try {
-            // This calls DoctorService, so DoctorService needs to be injected into AppService
             List<String> availableSlots = doctorService.getDoctorAvailability(
                 appointment.getDoctor().getId(),
                 appointmentDate
@@ -190,7 +241,6 @@ public class AppService {
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
 
-        // Delegating to patientService for actual filtering logic
         if ((condition != null && !condition.trim().isEmpty()) && (name != null && !name.trim().isEmpty())) {
             return patientService.filterByDoctorAndCondition(condition, name, patientId);
         } else if (condition != null && !condition.trim().isEmpty()) {
@@ -198,7 +248,6 @@ public class AppService {
         } else if (name != null && !name.trim().isEmpty()) {
             return patientService.filterByDoctor(name, patientId);
         } else {
-            // If no filters, return all appointments for the patient
             return patientService.getPatientAppointment(patientId, token);
         }
     }

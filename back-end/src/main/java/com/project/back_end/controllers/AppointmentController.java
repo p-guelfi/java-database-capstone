@@ -1,4 +1,4 @@
-package com.project.back_end.controller;
+package com.project.back_end.controllers;
 
 import com.project.back_end.models.Appointment;
 import com.project.back_end.models.Patient; // ADDED THIS IMPORT

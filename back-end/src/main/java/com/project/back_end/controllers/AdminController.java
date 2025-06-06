@@ -1,4 +1,4 @@
-package com.project.back_end.controller;
+package com.project.back_end.controllers;
 
 import com.project.back_end.models.Admin;
 import com.project.back_end.services.AppService; // Your central Service class

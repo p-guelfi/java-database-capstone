@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Clinic - Doctor Dashboard</title>
+    <!-- Favicon -->
+    <link rel="icon" th:href="@{/assets/images/logo/logo.png}" type="image/png">
+    <!-- Page-specific CSS for Doctor Dashboard -->
+    <link rel="stylesheet" th:href="@{/assets/css/doctorDashboard.css}">
+    <!-- Global Stylesheet for common elements -->
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <!-- Header will be dynamically loaded here by header.js -->
+            <div id="header"></div>
+
+            <main class="main-content">
+                <h2>Doctor Dashboard - Your Appointments</h2>
+
+                <div class="controls">
+                    <input type="text" id="searchBar" class="input-field" placeholder="Search appointments by patient name">
+                    <div class="filters">
+                        <button id="todayAppointmentsBtn" class="button filter-btn">Today's Appointments</button>
+                        <input type="date" id="dateFilter" class="input-field select-dropdown">
+                    </div>
+                    <!-- "Update Profile" button -->
+                    <button id="updateProfileBtn" class="button action-btn">Update Profile</button>
+                    <!-- "Mark My Availability" button -->
+                    <button id="markAvailabilityBtn" class="button action-btn ml-2">Manage My Availability</button>
+                </div>
+
+                <div class="table-container">
+                    <table id="patientTable">
+                        <thead>
+                            <tr>
+                                <th>Appointment ID</th>
+                                <th>Patient Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Appointment Time</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientTableBody">
+                            <!-- Patient appointment rows will be dynamically injected here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+
+            <!-- Footer will be dynamically loaded here by footer.js -->
+            <div id="footer"></div>
+        </div>
+    </div>
+
+    <!-- Hidden modal for Doctor Profile Update -->
+    <div id="doctorProfileModal" class="modal">
+        <span id="closeDoctorProfileModal" class="close">&times;</span>
+        <div id="doctorProfileModal-body" class="modal-content">
+            <!-- Form for updating doctor profile will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- New Hidden modal for Managing Availability (replacing unavailability) -->
+    <div id="availabilityModal" class="modal">
+        <span id="closeAvailabilityModal" class="close">&times;</span>
+        <div id="availabilityModal-body" class="modal-content">
+            <!-- Form for managing recurring availability will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- JavaScript Utility and Rendering Scripts -->
+    <script type="module" th:src="@{/js/util.js}" defer></script>
+    <script type="module" th:src="@{/js/render.js}" defer></script>
+
+    <!-- JavaScript Component Scripts -->
+    <script type="module" th:src="@{/js/components/header.js}" defer></script>
+    <script type="module" th:src="@{/js/components/footer.js}" defer></script>
+    <script type="module" th:src="@{/js/components/patientRows.js}" defer></script> <!-- Component for table rows -->
+
+    <!-- JavaScript Service Scripts -->
+    <script type="module" th:src="@{/js/services/patientServices.js}" defer></script>
+    <script type="module" th:src="@{/js/services/appointmentRecordService.js}" defer></script>
+    <script type="module" th:src="@{/js/services/doctorServices.js}" defer></script> <!-- Essential for doctor services -->
+
+    <!-- Main JavaScript Logic for Doctor Dashboard -->
+    <script type="module" th:src="@{/js/doctorDashboard.js}" defer></script>
+
+    <!-- INLINE SCRIPT FOR MODAL FUNCTIONALITY -->
+    <script type="module">
+        // Import necessary functions from external service files
+        import { showAlert, formatDate } from './js/util.js';
+        import { getDoctorProfileById, updateDoctorProfile, getDoctorAvailableTimes, addDoctorAvailableTime, removeDoctorAvailableTime } from './js/services/doctorServices.js'; // Updated imports
+
+        // --- Doctor Profile Modal Elements ---
+        const doctorProfileModal = document.getElementById('doctorProfileModal');
+        const closeDoctorProfileModalBtn = document.getElementById('closeDoctorProfileModal');
+        const doctorProfileModalBody = document.getElementById('doctorProfileModal-body');
+        const updateProfileBtn = document.getElementById('updateProfileBtn');
+
+        // --- Availability Modal Elements ---
+        const availabilityModal = document.getElementById('availabilityModal'); // Changed ID
+        const closeAvailabilityModalBtn = document.getElementById('closeAvailabilityModal'); // Changed ID
+        const availabilityModalBody = document.getElementById('availabilityModal-body'); // Changed ID
+        const markAvailabilityBtn = document.getElementById('markAvailabilityBtn'); // Changed ID
+
+        // --- Event Listeners for Buttons and Modals ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (updateProfileBtn) {
+                updateProfileBtn.addEventListener('click', openDoctorProfileModal);
+            }
+            if (markAvailabilityBtn) { // Changed button ID
+                markAvailabilityBtn.addEventListener('click', openAvailabilityModal); // Changed function call
+            }
+            if (closeDoctorProfileModalBtn) {
+                closeDoctorProfileModalBtn.addEventListener('click', closeDoctorProfileModal);
+            }
+            if (doctorProfileModal) {
+                doctorProfileModal.addEventListener('click', (event) => {
+                    if (event.target === doctorProfileModal) {
+                        closeDoctorProfileModal();
+                    }
+                });
+            }
+            if (closeAvailabilityModalBtn) { // Changed ID
+                closeAvailabilityModalBtn.addEventListener('click', closeAvailabilityModal); // Changed function call
+            }
+            if (availabilityModal) { // Changed ID
+                availabilityModal.addEventListener('click', (event) => {
+                    if (event.target === availabilityModal) {
+                        closeAvailabilityModal();
+                    }
+                });
+            }
+        });
+
+        // --- Doctor Profile Modal Functions (Unchanged from previous version, kept for completeness) ---
+
+        /**
+         * Opens the doctor profile modal, fetches the current doctor's data,
+         * and renders the profile update form.
+         */
+        async function openDoctorProfileModal() {
+            if (!doctorProfileModal || !doctorProfileModalBody) {
+                console.error("Doctor profile modal elements not found in DOM.");
+                showAlert("Error: Profile modal not initialized.");
+                return;
+            }
+
+            const token = localStorage.getItem("token");
+            const userId = localStorage.getItem("userId");
+            const userRole = localStorage.getItem("userRole");
+
+            if (!token || !userId || userRole !== 'doctor') {
+                showAlert("Unauthorized: Please log in as a doctor to update your profile.");
+                return;
+            }
+
+            doctorProfileModal.style.display = 'block';
+            doctorProfileModalBody.innerHTML = '<p class="text-center py-4">Loading profile data...</p>';
+
+            try {
+                const doctorData = await getDoctorProfileById(userId, token);
+
+                if (doctorData) {
+                    renderDoctorProfileForm(doctorData, token, userId);
+                } else {
+                    doctorProfileModalBody.innerHTML = '<p class="text-center text-red-500 py-4">Failed to load doctor profile.</p>';
+                    showAlert("Failed to load your profile. Please try again.");
+                }
+            } catch (error) {
+                console.error("Error fetching doctor profile:", error);
+                doctorProfileModalBody.innerHTML = '<p class="text-center text-red-500 py-4">An error occurred while loading your profile.</p>';
+                showAlert("An error occurred while loading your profile. Check console for details.");
+            }
+        }
+
+        /**
+         * Closes the doctor profile modal and clears its content.
+         */
+        function closeDoctorProfileModal() {
+            if (doctorProfileModal) {
+                doctorProfileModal.style.display = 'none';
+                doctorProfileModalBody.innerHTML = '';
+            }
+        }
+
+        /**
+         * Renders the form for updating doctor profile within the modal body.
+         */
+        function renderDoctorProfileForm(doctorData, token, userId) {
+            doctorProfileModalBody.innerHTML = `
+                <h3 class="text-2xl font-semibold text-center mb-6">Update Your Profile</h3>
+                <form id="doctorProfileForm" class="space-y-4">
+                    <div>
+                        <label for="doctorName" class="block text-sm font-medium text-gray-700">Name:</label>
+                        <input type="text" id="doctorName" name="name" value="${doctorData.name || ''}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label for="doctorEmail" class="block text-sm font-medium text-gray-700">Email:</label>
+                        <input type="email" id="doctorEmail" name="email" value="${doctorData.email || ''}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label for="doctorPhone" class="block text-sm font-medium text-gray-700">Phone:</label>
+                        <input type="tel" id="doctorPhone" name="phone" value="${doctorData.phone || ''}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="doctorSpecialty" class="block text-sm font-medium text-gray-700">Specialization:</label>
+                        <input type="text" id="doctorSpecialty" name="specialty" value="${doctorData.specialty || ''}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div class="flex justify-end pt-4">
+                        <button type="submit" class="button button-primary px-4 py-2">Save Changes</button>
+                        <button type="button" id="cancelProfileUpdate" class="button button-secondary ml-3 px-4 py-2">Cancel</button>
+                    </div>
+                </form>
+            `;
+
+            const doctorProfileForm = document.getElementById('doctorProfileForm');
+            if (doctorProfileForm) {
+                doctorProfileForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const updatedDoctorData = {
+                        id: userId,
+                        name: document.getElementById('doctorName').value,
+                        email: document.getElementById('doctorEmail').value,
+                        phone: document.getElementById('doctorPhone').value,
+                        specialty: document.getElementById('doctorSpecialty').value,
+                    };
+
+                    const result = await updateDoctorProfile(updatedDoctorData, token);
+
+                    if (result.success) {
+                        showAlert("Profile updated successfully!");
+                        closeDoctorProfileModal();
+                    } else {
+                        showAlert(result.message || "Failed to update profile. Please try again.");
+                    }
+                });
+            }
+
+            const cancelProfileUpdateBtn = document.getElementById('cancelProfileUpdate');
+            if (cancelProfileUpdateBtn) {
+                cancelProfileUpdateBtn.addEventListener('click', closeDoctorProfileModal);
+            }
+        }
+
+        // --- Availability Modal Functions (NEW) ---
+
+        /**
+         * Opens the availability modal, fetches current available times,
+         * and renders the management form.
+         */
+        async function openAvailabilityModal() {
+            if (!availabilityModal || !availabilityModalBody) {
+                console.error("Availability modal elements not found in DOM.");
+                showAlert("Error: Availability modal not initialized.");
+                return;
+            }
+
+            const token = localStorage.getItem("token");
+            const userId = localStorage.getItem("userId");
+            const userRole = localStorage.getItem("userRole");
+
+            if (!token || !userId || userRole !== 'doctor') {
+                showAlert("Unauthorized: Please log in as a doctor to manage availability.");
+                return;
+            }
+
+            availabilityModal.style.display = 'block';
+            availabilityModalBody.innerHTML = '<p class="text-center py-4">Loading availability...</p>';
+
+            try {
+                const availableTimes = await getDoctorAvailableTimes(userId, token);
+                renderAvailabilityForm(availableTimes, token, userId);
+            } catch (error) {
+                console.error("Error fetching doctor available times:", error);
+                availabilityModalBody.innerHTML = '<p class="text-center text-red-500 py-4">An error occurred while loading availability.</p>';
+                showAlert("An error occurred while loading availability. Check console for details.");
+            }
+        }
+
+        /**
+         * Closes the availability modal and clears its content.
+         */
+        function closeAvailabilityModal() {
+            if (availabilityModal) {
+                availabilityModal.style.display = 'none';
+                availabilityModalBody.innerHTML = '';
+            }
+        }
+
+        /**
+         * Renders the form for managing doctor availability.
+         * @param {Array<Object>} currentAvailableTimes - List of { id: Long, availableTime: String } objects.
+         * @param {string} token - Doctor's authentication token.
+         * @param {string} doctorId - Doctor's ID.
+         */
+        function renderAvailabilityForm(currentAvailableTimes, token, doctorId) {
+            let existingSlotsHtml = '';
+            if (currentAvailableTimes && currentAvailableTimes.length > 0) {
+                existingSlotsHtml = currentAvailableTimes.map(slot => `
+                    <li class="flex justify-between items-center bg-gray-100 p-2 rounded-md mb-2">
+                        <span>${slot.availableTime}</span>
+                        <button type="button" class="button button-danger delete-slot-btn" data-slot-id="${slot.id}" data-slot-time="${slot.availableTime}">Remove</button>
+                    </li>
+                `).join('');
+            } else {
+                existingSlotsHtml = '<p class="text-gray-600">No recurring available slots found.</p>';
+            }
+
+            availabilityModalBody.innerHTML = `
+                <h3 class="text-2xl font-semibold text-center mb-6">Manage Your Recurring Daily Availability</h3>
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-800 mb-2">Current Available Slots:</h4>
+                    <ul id="currentAvailableSlotsList" class="list-disc pl-5">
+                        ${existingSlotsHtml}
+                    </ul>
+                </div>
+
+                <h4 class="text-lg font-medium text-gray-800 mb-2">Add New Slot:</h4>
+                <form id="addAvailabilityForm" class="space-y-4 mb-6">
+                    <div>
+                        <label for="newAvailableTime" class="block text-sm font-medium text-gray-700">New Slot (HH:MM-HH:MM):</label>
+                        <input type="text" id="newAvailableTime" placeholder="e.g., 09:00-10:00"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]$">
+                        <p class="text-xs text-gray-500 mt-1">Format: HH:MM-HH:MM (e.g., 09:00-10:00)</p>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" class="button button-primary px-4 py-2">Add Slot</button>
+                    </div>
+                </form>
+
+                <div class="flex justify-end pt-4">
+                    <button type="button" id="cancelAvailability" class="button button-secondary px-4 py-2">Close</button>
+                </div>
+            `;
+
+            // Event listener for adding a new slot
+            const addAvailabilityForm = document.getElementById('addAvailabilityForm');
+            if (addAvailabilityForm) {
+                addAvailabilityForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const newSlotTime = document.getElementById('newAvailableTime').value.trim();
+
+                    if (!newSlotTime) {
+                        showAlert("Please enter a new availability slot.");
+                        return;
+                    }
+
+                    const result = await addDoctorAvailableTime(doctorId, newSlotTime, token);
+
+                    if (result.success) {
+                        showAlert(result.message || "Slot added successfully!");
+                        // Re-render the form to show the updated list
+                        const updatedTimes = await getDoctorAvailableTimes(doctorId, token); // Fetch latest
+                        renderAvailabilityForm(updatedTimes, token, doctorId);
+                    } else {
+                        showAlert(result.message || "Failed to add slot. Please try again.");
+                    }
+                });
+            }
+
+            // Event listener for removing an existing slot
+            const currentSlotsList = document.getElementById('currentAvailableSlotsList');
+            if (currentSlotsList) {
+                currentSlotsList.addEventListener('click', async (event) => {
+                    if (event.target.classList.contains('delete-slot-btn')) {
+                        const slotId = event.target.dataset.slotId; // For deleting by ID (preferred)
+                        const slotTime = event.target.dataset.slotTime; // Fallback to delete by time string if ID not available
+                        if (!slotId && !slotTime) {
+                            showAlert("Could not identify slot to remove.");
+                            return;
+                        }
+
+                        const result = await removeDoctorAvailableTime(slotId, token); // Assuming remove by ID
+
+                        if (result.success) {
+                            showAlert(result.message || "Slot removed successfully!");
+                            // Re-render the form to show the updated list
+                            const updatedTimes = await getDoctorAvailableTimes(doctorId, token); // Fetch latest
+                            renderAvailabilityForm(updatedTimes, token, doctorId);
+                        } else {
+                            showAlert(result.message || "Failed to remove slot. Please try again.");
+                        }
+                    }
+                });
+            }
+
+            const cancelAvailabilityBtn = document.getElementById('cancelAvailability');
+            if (cancelAvailabilityBtn) {
+                cancelAvailabilityBtn.addEventListener('click', closeAvailabilityModal);
+            }
+        }
+    </script>
+</body>
+</html>

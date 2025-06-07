@@ -1,0 +1,100 @@
+/* Universal Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base HTML and Body Styles */
+html, body {
+    height: 100%;
+    font-family: 'Roboto', sans-serif; /* Using Roboto as requested, ensure it's imported or fallback to sans-serif */
+    background-color: #f4f7f6; /* Light background for overall page */
+    color: #333;
+}
+
+/* Main Content Area Styling */
+.main-content {
+    flex-grow: 1; /* Allows main content to take available space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    background: url('../images/index/index.png') no-repeat center center fixed; /* Background image */
+    background-size: cover; /* Cover the entire area */
+    animation: fadeIn 1s ease-in-out; /* Simple fade-in animation for visual appeal */
+    min-height: 50vh; /* Ensure it takes a decent height */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Heading (h2) Styles */
+.main-content h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #017d7e; /* A vibrant teal color */
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Role Selection Button Container */
+.role-selection {
+    display: flex;
+    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+    gap: 1.5rem; /* Space between buttons */
+    justify-content: center;
+}
+
+/* Dashboard Button Specific Styles (overrides/enhances .dashboard-btn from style.css) */
+.dashboard-btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #017d7e; /* Primary button color */
+    border: none;
+    border-radius: 10px; /* Rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+    min-width: 150px; /* Ensures buttons have a minimum width */
+}
+
+.dashboard-btn:hover {
+    background-color: #015c5d; /* Darker teal on hover */
+    transform: translateY(-3px); /* Slight lift effect */
+}
+
+.dashboard-btn:active {
+    transform: translateY(0); /* Press effect */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .main-content h2 {
+        font-size: 2rem;
+    }
+    .dashboard-btn {
+        font-size: 1rem;
+        padding: 0.8rem 2rem;
+    }
+    .role-selection {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content h2 {
+        font-size: 1.5rem;
+    }
+    .dashboard-btn {
+        width: 80%; /* Make buttons wider on very small screens */
+    }
+}

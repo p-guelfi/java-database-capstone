@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Clinic - Patient Dashboard</title>
+    <!-- Favicon -->
+    <link rel="icon" href="../assets/images/logo/logo.png" type="image/png">
+    <!-- Page-specific CSS for Patient Dashboard -->
+    <link rel="stylesheet" href="../assets/css/patientDashboard.css">
+    <!-- Global Stylesheet for common elements -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <!-- Header will be dynamically loaded here by header.js -->
+            <div id="header"></div>
+
+            <main class="main-content">
+                <h2>Welcome to Smart Clinic! Find Your Doctor.</h2>
+
+                <div class="controls">
+                    <input type="text" id="searchBar" class="input-field" placeholder="Search doctors by name">
+                    <div class="filters">
+                        <select id="timeFilter" class="select-dropdown">
+                            <option value="">Filter by Availability</option>
+                            <!-- Options will be populated dynamically or static like 09:00 - 10:00 -->
+                        </select>
+                        <select id="specialtyFilter" class="select-dropdown">
+                            <option value="">Filter by Specialty</option>
+                            <!-- Options will be populated dynamically based on available specialties -->
+                        </select>
+                    </div>
+                </div>
+
+                <div id="content" class="doctor-cards-container">
+                    <!-- Doctor cards will be dynamically injected here by JavaScript -->
+                    <p class="no-records-message" id="noDoctorsMessage">No doctors found. Please check back later.</p>
+                </div>
+            </main>
+
+            <!-- Footer will be dynamically loaded here by footer.js -->
+            <div id="footer"></div>
+        </div>
+    </div>
+
+    <!-- Hidden modal for patient login/signup -->
+    <div id="modal" class="modal">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="modal-body">
+            <!-- Modal content for login/signup will be injected here -->
+        </div>
+    </div>
+
+    <!-- JavaScript Utility and Rendering Scripts -->
+    <script type="module" src="../js/util.js" defer></script>
+    <script type="module" src="../js/render.js" defer></script>
+
+    <!-- JavaScript Component Scripts -->
+    <script type="module" src="../js/components/header.js" defer></script>
+    <script type="module" src="../js/components/footer.js" defer></script>
+    <script type="module" src="../js/components/modals.js" defer></script>
+    <script type="module" src="../js/components/doctorCard.js" defer></script>
+
+    <!-- JavaScript Service Scripts -->
+    <script type="module" src="../js/services/doctorServices.js" defer></script>
+    <script type="module" src="../js/services/patientServices.js" defer></script>
+
+    <!-- Main JavaScript Logic for Patient Dashboard -->
+    <script type="module" src="../js/patientDashboard.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+/* patientDashboard.css
+ * This file provides specific styling for the Patient Dashboard,
+ * which displays a list of doctors for patients to browse.
+ */
+
+/* Universal Reset and Base Setup (re-iterated for clarity, but ideally from global style.css) */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', sans-serif; /* Consistent with global style.css */
+    background-color: #f4f7f6; /* Light background for overall page */
+    color: #333;
+}
+
+/* Layout and Wrappers */
+.wrapper {
+    background-color: #ffffff; /* White background for the main content area */
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05); /* Subtle shadow for depth */
+    padding: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem 0;
+}
+
+.main-content h2 {
+    color: #017d7e; /* Vibrant teal heading color */
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Controls Section (Search and Filters) */
+.controls {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    gap: 1rem;
+    width: 100%;
+    max-width: 900px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+#searchBar {
+    flex: 1; /* Allows search bar to grow */
+    min-width: 200px; /* Minimum width for search bar */
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap; /* Allows filters to wrap */
+    justify-content: center;
+}
+
+.select-dropdown {
+    min-width: 150px; /* Minimum width for select dropdowns */
+}
+
+/* Doctor Cards Container - similar to adminDashboard.css for consistency */
+.doctor-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive grid */
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1200px; /* Match wrapper max-width */
+    padding: 1rem 0;
+}
+
+/* Doctor Card Styles - these styles are expected by doctorCard.js */
+.doctor-card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.doctor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+.doctor-card h3 {
+    color: #017d7e;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.doctor-card p {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 0.4rem;
+}
+
+.doctor-card .card-actions {
+    margin-top: 1rem;
+    text-align: right; /* Align buttons to the right within the card */
+}
+
+/* Generic button style for "Book Now" as defined in style.css, but ensured here */
+.button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #017d7e;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.button:hover {
+    background-color: #015c5d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+
+/* Message when no records are found */
+.no-records-message {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    font-size: 1.1rem;
+    padding: 2rem;
+    width: 100%; /* Ensure it takes full width in the container */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .wrapper {
+        padding: 1rem;
+    }
+    .main-content h2 {
+        font-size: 1.8rem;
+    }
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #searchBar, .filters, .select-dropdown {
+        width: 100%;
+        min-width: unset;
+    }
+    .doctor-cards-container {
+        grid-template-columns: 1fr; /* Stack cards vertically on small screens */
+    }
+}

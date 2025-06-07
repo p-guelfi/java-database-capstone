@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Clinic - Select Role</title>
+    <!-- Favicon -->
+    <link rel="icon" href="./assets/images/logo/logo.png" type="image/png">
+    <!-- Main Stylesheet for this page -->
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <!-- Global Stylesheet for common elements -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <!-- Header will be dynamically loaded here by header.js -->
+            <div id="header"></div>
+
+            <main class="main-content">
+                <h2>Select Your Role</h2>
+                <div class="role-selection">
+                    <!-- Removed onclick attributes; event listeners are now attached in index.js -->
+                    <button id="adminBtn" class="dashboard-btn">Admin</button>
+                    <button id="doctorBtn" class="dashboard-btn">Doctor</button>
+                    <!-- Patient button still uses selectRole, which will guide to public patient dashboard -->
+                    <button id="patientBtn" class="dashboard-btn">Patient</button>
+                </div>
+            </main>
+
+            <!-- Footer will be dynamically loaded here by footer.js -->
+            <div id="footer"></div>
+        </div>
+    </div>
+
+    <!-- Hidden modal for login/other dynamic content -->
+    <div id="modal" class="modal">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="modal-body"></div>
+    </div>
+
+    <!-- JavaScript Utility and Rendering Scripts -->
+    <script type="module" src="./js/util.js" defer></script>
+    <script type="module" src="./js/render.js" defer></script>
+
+    <!-- JavaScript Component Scripts -->
+    <script type="module" src="./js/components/header.js" defer></script>
+    <script type="module" src="./js/components/footer.js" defer></script>
+    <script type="module" src="./js/components/modals.js" defer></script>
+
+    <!-- Main JavaScript Logic for role selection and modal behavior -->
+    <script type="module" src="./js/services/index.js" defer></script>
+</body>
+</html>

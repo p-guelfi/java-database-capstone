@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Clinic - Admin Dashboard</title>
+    <!-- Favicon -->
+    <link rel="icon" th:href="@{/assets/images/logo/logo.png}" type="image/png">
+    <!-- Page-specific CSS for Admin Dashboard -->
+    <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}">
+    <!-- Global Stylesheet for common elements -->
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <!-- Header will be dynamically loaded here by header.js -->
+            <div id="header"></div>
+
+            <main class="main-content">
+                <h2>Admin Dashboard - Manage Doctors</h2>
+
+                <div class="controls">
+                    <input type="text" id="searchBar" class="input-field" placeholder="Search doctors by name">
+                    <div class="filters">
+                        <select id="timeFilter" class="select-dropdown">
+                            <option value="">Filter by Availability</option>
+                            <!-- Options will be populated dynamically or static like 09:00 - 10:00 -->
+                        </select>
+                        <select id="specialtyFilter" class="select-dropdown">
+                            <option value="">Filter by Specialty</option>
+                            <!-- Options will be populated dynamically based on available specialties -->
+                        </select>
+                    </div>
+                </div>
+
+                <div id="content" class="doctor-cards-container">
+                    <!-- Doctor cards will be dynamically injected here by JavaScript -->
+                    <p class="no-records-message" id="noDoctorsMessage">No doctors found. Use the 'Add Doctor' button to add new doctor records.</p>
+                </div>
+            </main>
+
+            <!-- Footer will be dynamically loaded here by footer.js -->
+            <div id="footer"></div>
+        </div>
+    </div>
+
+    <!-- Hidden modal for adding/editing doctors -->
+    <div id="modal" class="modal">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="modal-body">
+            <!-- Modal content for adding a doctor will be injected here -->
+        </div>
+    </div>
+
+    <!-- JavaScript Utility and Rendering Scripts (using Thymeleaf's @{} for paths) -->
+    <script type="module" th:src="@{/js/util.js}" defer></script>
+    <script type="module" th:src="@{/js/render.js}" defer></script>
+
+    <!-- JavaScript Component Scripts -->
+    <script type="module" th:src="@{/js/components/header.js}" defer></script>
+    <script type="module" th:src="@{/js/components/footer.js}" defer></script>
+    <script type="module" th:src="@{/js/components/modals.js}" defer></script>
+    <script type="module" th:src="@{/js/components/doctorCard.js}" defer></script>
+
+    <!-- Main JavaScript Logic for Admin Dashboard -->
+    <script type="module" th:src="@{/js/adminDashboard.js}" defer></script>
+</body>
+</html>

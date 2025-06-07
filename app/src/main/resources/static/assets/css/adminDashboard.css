@@ -1,0 +1,193 @@
+/* Universal Reset and Base Setup */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #eef2f3; /* Light background for dashboard */
+}
+
+/* Layout and Wrappers - specific overrides/enhancements */
+.wrapper {
+    background-color: #ffffff; /* White background for the content wrapper */
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    padding: 2rem;
+    margin-top: 1rem; /* Space from header */
+    margin-bottom: 1rem; /* Space before footer */
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem 0;
+}
+
+.main-content h2 {
+    color: #017d7e;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Controls Section (Search and Filters) */
+.controls {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping */
+    gap: 1rem;
+    width: 100%;
+    max-width: 900px;
+    justify-content: center; /* Center controls */
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+#searchBar {
+    flex: 1; /* Allows search bar to grow */
+    min-width: 200px; /* Minimum width for search bar */
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap; /* Allows filters to wrap */
+    justify-content: center;
+}
+
+.select-dropdown {
+    min-width: 150px; /* Minimum width for select dropdowns */
+}
+
+/* Doctor Cards Container */
+.doctor-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive grid */
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1200px; /* Match wrapper max-width */
+    padding: 1rem 0;
+}
+
+/* Individual Doctor Card (to be used by doctorCard.js component) */
+.doctor-card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pushes delete button to bottom */
+}
+
+.doctor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+.doctor-card h3 {
+    color: #017d7e;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.doctor-card p {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 0.4rem;
+}
+
+.doctor-card .actions {
+    margin-top: 1rem;
+    text-align: right;
+}
+
+.doctor-card .delete-btn {
+    background-color: #e74c3c; /* Red for delete */
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.doctor-card .delete-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Modal Styling - Shared with style.css but specific internal modal styles */
+.modal-content h3 {
+    color: #017d7e;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+.modal-content .form-group {
+    margin-bottom: 1rem;
+}
+
+.modal-content .form-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    color: #555;
+}
+
+.modal-content .input-field {
+    width: calc(100% - 1.5rem); /* Adjust for padding in form-group */
+}
+
+.modal-content .submit-btn {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 1.5rem;
+    background-color: #28a745; /* Green for submit */
+    color: white;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modal-content .submit-btn:hover {
+    background-color: #218838;
+}
+
+.no-records-message {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    font-size: 1.1rem;
+    padding: 2rem;
+    width: 100%;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .wrapper {
+        padding: 1rem;
+    }
+    .main-content h2 {
+        font-size: 1.8rem;
+    }
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #searchBar, .filters, .select-dropdown {
+        width: 100%;
+        min-width: unset; /* Remove min-width constraints */
+    }
+    .doctor-cards-container {
+        grid-template-columns: 1fr; /* Stack cards vertically on small screens */
+    }
+}

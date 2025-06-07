@@ -1,0 +1,259 @@
+/* Global Reset and Box Sizing */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base HTML and Body Styles (Common) */
+html, body {
+    height: 100%;
+    font-family: 'Inter', sans-serif; /* Using Inter font as default for consistency */
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa; /* Light background */
+}
+
+/* Main Container and Wrapper */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures container takes full viewport height */
+    margin: 0 auto;
+    width: 100%; /* Fluid width */
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows wrapper to expand */
+    width: 100%;
+    max-width: 1200px; /* Max width for content, centered */
+    margin: 0 auto; /* Center the wrapper */
+    padding: 0 1rem; /* Padding on sides */
+}
+
+/* Header Styles */
+.header {
+    background-color: #fff;
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    margin-bottom: 20px; /* Space below header */
+}
+
+.header .logo {
+    display: flex;
+    align-items: center;
+    margin-left: 1.5rem;
+}
+
+.header .logo img {
+    height: 40px; /* Adjust logo size */
+    margin-right: 10px;
+    border-radius: 8px; /* Rounded corners for logo */
+}
+
+.header .logo h1 {
+    font-size: 1.8rem;
+    color: #017d7e;
+    margin: 0;
+}
+
+.header nav ul {
+    list-style: none;
+    display: flex;
+    margin-right: 1.5rem;
+}
+
+.header nav ul li {
+    margin-left: 1.5rem;
+}
+
+.header nav ul li a, .header nav ul li button {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    background: none; /* For buttons */
+    border: none; /* For buttons */
+    cursor: pointer; /* For buttons */
+    font-size: 1rem; /* Ensure button text size is consistent */
+}
+
+.header nav ul li a:hover, .header nav ul li button:hover {
+    background-color: #e0f2f1; /* Light teal background on hover */
+    color: #017d7e;
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #333;
+    color: #fff;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    margin-top: auto; /* Pushes footer to the bottom */
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+/* General Button Styles */
+.button, .dashboard-btn, .adminBtn, .action-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #017d7e; /* Default teal */
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.button:hover, .dashboard-btn:hover, .adminBtn:hover, .action-btn:hover {
+    background-color: #015c5d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.button:active, .dashboard-btn:active, .adminBtn:active, .action-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Input Field Styles */
+.input-field, .select-dropdown {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-field:focus, .select-dropdown:focus {
+    border-color: #017d7e;
+    box-shadow: 0 0 0 3px rgba(1, 125, 126, 0.2);
+}
+
+/* Form Group Styles */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #555;
+}
+
+/* Checkbox/Radio Group Styles */
+.checkbox-group label {
+    margin-right: 15px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"],
+.checkbox-group input[type="radio"] {
+    margin-right: 8px;
+    transform: scale(1.1); /* Slightly larger checkboxes */
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    animation: fadeInModal 0.3s ease-out;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; /* Centered */
+    padding: 2rem;
+    border: 1px solid #888;
+    width: 80%; /* Could be responsive */
+    max-width: 500px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    animation: slideInModal 0.3s ease-out;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInModal {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close:hover,
+.close:focus {
+    color: #333;
+    text-decoration: none;
+}
+
+/* Responsive Design for common elements */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+    }
+    .header .logo {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+    .header nav ul {
+        flex-direction: column;
+        width: 100%;
+        margin-right: 0;
+        align-items: flex-start;
+    }
+    .header nav ul li {
+        margin: 0.5rem 0;
+        width: 100%;
+        text-align: center; /* Center links in vertical stack */
+    }
+    .header nav ul li a, .header nav ul li button {
+        display: block; /* Make links/buttons take full width */
+    }
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+}

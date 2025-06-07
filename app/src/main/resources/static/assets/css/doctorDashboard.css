@@ -1,0 +1,172 @@
+/* Universal Reset and Base Setup */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #eef2f3; /* Consistent light background */
+}
+
+/* Layout and Wrappers */
+.wrapper {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    padding: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem 0;
+}
+
+.main-content h2 {
+    color: #017d7e;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Controls Section (Search and Filters) */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 100%;
+    max-width: 900px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+#searchBar {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-btn {
+    background-color: #017d7e; /* Primary button color */
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: #015c5d; /* Darker teal on hover */
+}
+
+/* Table Container for overflow scroll */
+.table-container {
+    width: 100%;
+    max-width: 1200px;
+    overflow-x: auto; /* Allows horizontal scrolling on small screens */
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    background-color: #fff;
+}
+
+/* Patient Records Table Styling */
+#patientTable {
+    width: 100%;
+    border-collapse: collapse; /* Removes double borders */
+    min-width: 700px; /* Ensure table is readable on smaller screens forcing scroll */
+}
+
+#patientTable thead {
+    background-color: #017d7e;
+    color: white;
+    text-align: left;
+}
+
+#patientTable th {
+    padding: 1rem 0.8rem;
+    font-weight: 600;
+}
+
+#patientTable tbody tr {
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+#patientTable tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Alternating row colors */
+}
+
+#patientTable tbody tr:hover {
+    background-color: #e0f2f1; /* Highlight row on hover */
+}
+
+#patientTable td {
+    padding: 0.8rem;
+    vertical-align: middle;
+}
+
+/* Prescription Button in Table */
+.prescription-btn {
+    background-color: #3498db; /* Blue for prescription */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, filter 0.2s ease;
+}
+
+.prescription-btn:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Message when no records are found */
+.no-records-message {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 2rem;
+    width: 100%;
+    display: block; /* Ensure it takes full width of table cell */
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 768px) {
+    .wrapper {
+        padding: 1rem;
+    }
+    .main-content h2 {
+        font-size: 1.8rem;
+    }
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #searchBar, .filters {
+        width: 100%;
+    }
+    .table-container {
+        padding: 0.5rem;
+    }
+    #patientTable th, #patientTable td {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+}

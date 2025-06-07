@@ -40,17 +40,56 @@ html, body {
 .controls {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1rem; /* Consistent spacing between items */
     width: 100%;
     max-width: 900px;
     justify-content: center;
-    align-items: center;
+    align-items: center; /* Vertically align items in the flex container */
     margin-bottom: 1.5rem;
 }
 
-#searchBar {
-    flex: 1;
-    min-width: 200px;
+/* Unify the base style for all interactive elements within controls for vertical alignment */
+.controls .input-field,
+.controls .button {
+    height: 44px; /* Standardized height for all elements in the controls bar */
+    border-radius: 8px; /* Consistent rounded corners */
+    font-size: 1rem; /* Consistent font size */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    padding: 0 1.25rem; /* Default horizontal padding for inputs and buttons */
+    display: flex; /* Use flex to center text/content vertically */
+    align-items: center; /* Vertically center text/content within the fixed height */
+    justify-content: center; /* Horizontally center text/content within the fixed height */
+    flex-shrink: 0; /* Prevent items from shrinking below their content size unless explicitly allowed */
+    white-space: nowrap; /* Prevent text from wrapping inside buttons */
+}
+
+/* Specific adjustments for input fields to ensure content aligns with buttons */
+.controls .input-field {
+    /* Explicitly define vertical padding to compensate for browser defaults and ensure
+       perfect vertical centering within the 44px height for a 1rem (16px) font-size and 1px border.
+       Calculation: (44px - 16px font-size - 2*1px border) / 2 = 13px vertical padding. */
+    padding-top: 13px;
+    padding-bottom: 13px;
+    /* Keep horizontal padding consistent */
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+/* Search Bar and Date Filter input-field specifics */
+#searchBar,
+#dateFilter {
+    border: 1px solid #ccc;
+    color: #333;
+    background-color: #fff;
+    flex-grow: 1; /* Allow search bar to take available space */
+    min-width: 180px; /* Ensure it doesn't get too small */
+}
+
+#searchBar:focus,
+#dateFilter:focus {
+    outline: none;
+    border-color: #017d7e;
+    box-shadow: 0 0 0 2px rgba(1, 125, 126, 0.2);
 }
 
 .filters {
@@ -58,21 +97,28 @@ html, body {
     gap: 1rem;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center; /* Align items within the filters group */
 }
 
-.filter-btn {
-    background-color: #017d7e; /* Primary button color */
+/* Base button styles */
+.button {
+    background-color: #017d7e;
     color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+    text-decoration: none; /* In case it's used on <a> tags */
+    text-align: center;
 }
 
-.filter-btn:hover {
-    background-color: #015c5d; /* Darker teal on hover */
+.button:hover {
+    background-color: #015c5d;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
+
+/* Specific button styles (filter-btn, action-btn) inherit from .button */
+/* No need for separate styles for .filter-btn and .action-btn unless they deviate from .button */
+
 
 /* Table Container for overflow scroll */
 .table-container {
@@ -147,26 +193,27 @@ html, body {
     display: block; /* Ensure it takes full width of table cell */
 }
 
-/* Responsive Design for smaller screens */
-@media (max-width: 768px) {
-    .wrapper {
-        padding: 1rem;
-    }
-    .main-content h2 {
-        font-size: 1.8rem;
-    }
-    .controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    #searchBar, .filters {
-        width: 100%;
-    }
-    .table-container {
-        padding: 0.5rem;
-    }
-    #patientTable th, #patientTable td {
-        padding: 0.6rem;
-        font-size: 0.9rem;
-    }
+/* NEW: Highly specific rule to force all instances of this logo image to 30x30px */
+img[src="./assets/images/logo/logo.png"] {
+    width: 30px !important;
+    height: 30px !important;
+    max-width: 30px !important; /* Ensure it doesn't exceed this size */
+    max-height: 30px !important; /* Ensure it doesn't exceed this size */
+    object-fit: contain !important; /* Ensures the image scales properly within the dimensions */
+    vertical-align: middle !important; /* Aligns the image with text if it's next to any */
+}
+
+/* Existing specific rules for intended placements (kept for clarity, though the above rule will likely override) */
+body .footer-logo img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+body .logo img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    vertical-align: middle;
 }

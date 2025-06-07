@@ -25,22 +25,6 @@ export function renderFooter() {
                     <li><a href="#">Press</a></li>
                 </ul>
             </div>
-            <div class="footer-column">
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="#">Account</a></li>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Licensing</a></li>
-                </ul>
-            </div>
         </footer>
     `;
 }

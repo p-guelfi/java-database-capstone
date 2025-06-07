@@ -153,9 +153,9 @@ public class CentralService {
                 appointment.getAppointmentTime().plusHours(1).getHour(), appointment.getAppointmentTime().plusHours(1).getMinute());
 
         // Check if the proposed slot is actually one of the doctor's generally available slots AND not already booked
-        // You need to extract the 'availableTime' string from DoctorAvailableTime objects for comparison
+        // You need to extract the 'timeSlot' string from DoctorAvailableTime objects for comparison
         boolean isSlotGenerallyAvailable = doctorAvailableSlots.stream()
-            .anyMatch(slot -> slot.getAvailableTimes().equals(proposedSlot)); // Corrected method call: getAvailableTimes()
+            .anyMatch(slot -> slot.getTimeSlot().equals(proposedSlot)); // CHANGED: Use getTimeSlot()
 
         if (isSlotGenerallyAvailable) {
             // Also, double-check that the appointment time is in the future.

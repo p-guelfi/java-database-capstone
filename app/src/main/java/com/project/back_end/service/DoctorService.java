@@ -85,6 +85,7 @@ public class DoctorService {
      */
     @Transactional(readOnly = true)
     public List<DoctorAvailableTime> getDoctorAvailableTimes(Long doctorId) {
+        // This method relies on findByDoctor_Id in DoctorAvailableTimeRepository
         return availableTimeRepository.findByDoctor_Id(doctorId);
     }
 
@@ -102,8 +103,9 @@ public class DoctorService {
         }
         Doctor doctor = doctorOpt.get();
 
-        // Check if this specific slot already exists for this doctor
-        if (availableTimeRepository.findByDoctor_IdAndAvailableTimes(doctorId, availableTimesStr).isPresent()) {
+        // Check if this specific slot already exists for this doctor using the correct method
+        // This method now relies on findByDoctor_IdAndTimeSlot in DoctorAvailableTimeRepository
+        if (availableTimeRepository.findByDoctor_IdAndTimeSlot(doctorId, availableTimesStr).isPresent()) {
             System.out.println("DEBUG: DoctorService - Slot " + availableTimesStr + " already exists for doctor " + doctorId);
             return 0; // Slot already exists
         }
@@ -173,6 +175,11 @@ public class DoctorService {
      */
     @Transactional(readOnly = true)
     public List<Doctor> filterDoctors(String name, String time, String specialty) {
+        System.out.println("DEBUG: filterDoctors called with:");
+        System.out.println("  Name: '" + name + "'");
+        System.out.println("  Time: '" + time + "'");
+        System.out.println("  Specialty: '" + specialty + "'");
+
         // Normalize empty strings to null for easier conditional logic
         final String searchName = (name != null && !name.trim().isEmpty()) ? name.trim() : null;
         final String searchSpecialty = (specialty != null && !specialty.trim().isEmpty()) ? specialty.trim() : null;
@@ -182,23 +189,53 @@ public class DoctorService {
 
         // Determine which repository method to call based on provided filters
         if (searchName != null && searchSpecialty != null) {
+            System.out.println("DEBUG: Filtering by Name AND Specialty using findByNameContainingIgnoreCaseAndSpecialtyContainingIgnoreCase");
             doctors = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyContainingIgnoreCase(searchName, searchSpecialty);
         } else if (searchName != null) {
+            System.out.println("DEBUG: Filtering by Name only using findByNameContainingIgnoreCase");
             doctors = doctorRepository.findByNameContainingIgnoreCase(searchName);
         } else if (searchSpecialty != null) {
+            System.out.println("DEBUG: Filtering by Specialty only using findBySpecialtyContainingIgnoreCase");
             doctors = doctorRepository.findBySpecialtyContainingIgnoreCase(searchSpecialty);
         } else {
             // If no name or specialty filter, get all doctors.
+            System.out.println("DEBUG: No Name or Specialty filter, fetching all doctors.");
             doctors = doctorRepository.findAll();
         }
+
+        System.out.println("DEBUG: Doctors after Name/Specialty filter: " + doctors.size());
 
         // Apply time filtering if 'time' is provided. This still requires in-memory filtering
         // as time slots are stored as strings and associated via a separate table.
         if (searchTime != null) {
+            System.out.println("DEBUG: Applying Time filter for: '" + searchTime + "'");
             doctors = doctors.stream()
-                    .filter(doctor -> availableTimeRepository.findByDoctor_Id(doctor.getId()).stream()
-                            .anyMatch(slot -> slot.getAvailableTimes().equals(searchTime)))
+                    .filter(doctor -> {
+                        // Avoid NPE if doctor or its availableTimes is null
+                        if (doctor == null) {
+                            System.out.println("DEBUG: Skipping null doctor in time filter.");
+                            return false;
+                        }
+                        // Use findByDoctor_Id from DoctorAvailableTimeRepository
+                        List<DoctorAvailableTime> doctorAvailableTimes = availableTimeRepository.findByDoctor_Id(doctor.getId());
+                        if (doctorAvailableTimes == null || doctorAvailableTimes.isEmpty()) {
+                            System.out.println("DEBUG: Doctor " + doctor.getId() + " has no available times.");
+                            return false;
+                        }
+                        boolean matchesTime = doctorAvailableTimes.stream()
+                                .anyMatch(slot -> {
+                                    // Use getTimeSlot() to access the correct column
+                                    if (slot == null || slot.getTimeSlot() == null) {
+                                        System.out.println("DEBUG: Skipping null slot or null time_slot string for doctor " + doctor.getId());
+                                        return false;
+                                    }
+                                    return slot.getTimeSlot().equals(searchTime);
+                                });
+                        System.out.println("DEBUG: Doctor " + doctor.getId() + " (Name: " + doctor.getName() + ") matches time '" + searchTime + "': " + matchesTime);
+                        return matchesTime;
+                    })
                     .collect(Collectors.toList());
+            System.out.println("DEBUG: Doctors after Time filter: " + doctors.size());
         }
 
         return doctors;
@@ -216,6 +253,7 @@ public class DoctorService {
     @Transactional(readOnly = true)
     public List<DoctorAvailableTime> getDoctorAvailability(Long doctorId, LocalDate date) {
         System.out.println("DEBUG: getDoctorAvailability called for doctor " + doctorId + " on " + date);
+        // This method also relies on findByDoctor_Id in DoctorAvailableTimeRepository
         return availableTimeRepository.findByDoctor_Id(doctorId);
     }
 }

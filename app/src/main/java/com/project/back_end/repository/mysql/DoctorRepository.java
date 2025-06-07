@@ -8,48 +8,48 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Interfaz de repositorio para la entidad Doctor.
- * Extiende JpaRepository para heredar operaciones CRUD estándar y
- * define métodos de consulta personalizados para buscar y filtrar doctores.
+ * Repository interface for the Doctor entity.
+ * Provides CRUD operations and custom query capabilities for Doctor objects.
  */
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     /**
-     * Encuentra un Doctor por su dirección de email.
-     * @param email La dirección de email del doctor.
-     * @return Un Optional que contiene el Doctor si se encuentra, o un Optional vacío.
+     * Finds a doctor by email.
+     * @param email The email of the doctor.
+     * @return An Optional containing the Doctor if found.
      */
     Optional<Doctor> findByEmail(String email);
 
     /**
-     * Encuentra un Doctor por su dirección de email o número de teléfono.
-     * Esto es útil para validar la unicidad antes de guardar un nuevo doctor.
-     * @param email La dirección de email del doctor.
-     * @param phone El número de teléfono del doctor.
-     * @return Un Optional que contiene un Doctor si se encuentra una coincidencia por email o teléfono, o un Optional vacío.
+     * Finds a doctor by phone number.
+     * @param phone The phone number of the doctor.
+     * @return An Optional containing the Doctor if found.
      */
-    Optional<Doctor> findByEmailOrPhone(String email, String phone);
+    Optional<Doctor> findByPhone(String phone);
 
     /**
-     * Busca doctores cuyo nombre contenga la cadena dada (ignorando mayúsculas y minúsculas).
-     * @param name El nombre (o parte del nombre) a buscar.
-     * @return Una lista de doctores que coinciden con el criterio.
+     * Finds a doctor by name (case-insensitive, partial match).
+     * Spring Data JPA automatically generates the query.
+     * @param name The name or part of the name to search for.
+     * @return A list of doctors matching the name.
      */
     List<Doctor> findByNameContainingIgnoreCase(String name);
 
     /**
-     * Busca doctores cuya especialidad contenga la cadena dada (ignorando mayúsculas y minúsculas).
-     * @param specialty La especialidad (o parte de la especialidad) a buscar.
-     * @return Una lista de doctores que coinciden con el criterio.
+     * Finds doctors by specialty (case-insensitive, partial match).
+     * @param specialty The specialty or part of the specialty to search for.
+     * @return A list of doctors matching the specialty.
      */
     List<Doctor> findBySpecialtyContainingIgnoreCase(String specialty);
 
     /**
-     * Busca doctores cuyo nombre Y especialidad contengan las cadenas dadas (ignorando mayúsculas y minúsculas).
-     * @param name El nombre (o parte del nombre) a buscar.
-     * @param specialty La especialidad (o parte de la especialidad) a buscar.
-     * @return Una lista de doctores que coinciden con ambos criterios.
+     * Finds doctors by name and specialty (both case-insensitive, partial match).
+     * @param name The name or part of the name to search for.
+     * @param specialty The specialty or part of the specialty to search for.
+     * @return A list of doctors matching both criteria.
      */
     List<Doctor> findByNameContainingIgnoreCaseAndSpecialtyContainingIgnoreCase(String name, String specialty);
+
+    // You might also want methods for finding by email OR phone, etc.
 }

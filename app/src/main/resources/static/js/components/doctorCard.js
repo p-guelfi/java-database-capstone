@@ -5,7 +5,7 @@
 // Import necessary service functions. These will be implemented in subsequent steps.
 import { deleteDoctor } from '../services/doctorServices.js'; // For Admin: deleting doctors
 import { getPatientData } from '../services/patientServices.js'; // For Logged Patient: fetching patient data
-import { openModal } from './modals.js'; // Import openModal instead of showBookingOverlay
+import { openModal } from './modals.js'; // Import openModal
 
 /**
  * Creates a dynamic HTML card for a doctor.
@@ -41,7 +41,9 @@ export function createDoctorCard(doctor) {
     // Display available times, handle empty list gracefully
     const availability = document.createElement("p");
     if (doctor.availableTimes && doctor.availableTimes.length > 0) {
-        availability.innerHTML = `<strong>Available Times:</strong> ${doctor.availableTimes.join(", ")}`;
+        // Map DoctorAvailableTime objects to their 'availableTimes' string property
+        const times = doctor.availableTimes.map(slot => slot.availableTimes);
+        availability.innerHTML = `<strong>Available Times:</strong> ${times.join(", ")}`;
     } else {
         availability.innerHTML = `<strong>Available Times:</strong> Not specified`;
     }
@@ -82,16 +84,15 @@ export function createDoctorCard(doctor) {
             }
         });
         actionsDiv.appendChild(removeBtn);
-    } else if (role === "patient") { // Unlogged patient
+    } else if (role === "patient") { // Unlogged patient (no local storage token)
         const bookNow = document.createElement("button");
         bookNow.textContent = "Book Now";
         bookNow.classList.add("button"); // Use a general button style
         bookNow.addEventListener("click", () => {
-            alert("Please log in or sign up to book an appointment."); // TODO: Replace with custom modal
-            // Optionally, open the login/signup modal directly here.
+            openModal('patientLogin'); // Open the patient login/signup modal
         });
         actionsDiv.appendChild(bookNow);
-    } else if (role === "loggedPatient") { // Logged-in patient
+    } else if (role === "loggedPatient") { // Logged-in patient (local storage token and role)
         const bookNow = document.createElement("button");
         bookNow.textContent = "Book Now";
         bookNow.classList.add("button");
@@ -123,4 +124,25 @@ export function createDoctorCard(doctor) {
     card.appendChild(actionsDiv);
 
     return card; // Return the fully constructed doctor card
+}
+
+/**
+ * Renders a list of doctor cards into a specified container.
+ * Clears the container before adding new cards.
+ * @param {Array<Object>} doctors - An array of doctor objects to render.
+ * @param {HTMLElement} container - The DOM element where the doctor cards should be appended.
+ */
+export function renderDoctorCards(doctors, container) {
+    container.innerHTML = ''; // Clear existing content
+
+    if (!doctors || doctors.length === 0) {
+        // This function doesn't manage the "No doctors found" message directly,
+        // it's handled by patientDashboard.js
+        return;
+    }
+
+    doctors.forEach(doctor => {
+        const card = createDoctorCard(doctor);
+        container.appendChild(card);
+    });
 }

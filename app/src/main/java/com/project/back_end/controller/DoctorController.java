@@ -21,7 +21,7 @@ import java.util.Optional;
  * REST Controller for handling operations related to Doctor entities.
  * Includes endpoints for managing doctor profiles, recurring availability, and now, doctor login.
  */
-@RestController
+@RestController // Designates this class as a REST controller for handling HTTP requests.
 @RequestMapping("/doctor") // Base URL path for all methods in this controller
 public class DoctorController {
 
@@ -45,9 +45,6 @@ public class DoctorController {
      */
     @PostMapping("/login") // This endpoint handles POST requests to /doctor/login
     public ResponseEntity<Map<String, String>> doctorLogin(@RequestBody LoginDTO loginDTO) {
-        // Delegates the actual doctor login validation to CentralService.
-        // CentralService.validateDoctorLogin is expected to take a LoginDTO and return
-        // a ResponseEntity<Map<String, String>> (or handle error responses).
         return centralService.validateDoctorLogin(loginDTO);
     }
 
@@ -196,6 +193,31 @@ public class DoctorController {
             response.put("message", "Failed to delete doctor: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Filters doctors based on name, time availability, and specialty. (Public view)
+     * @param name The doctor's name to filter by. Defaults to "null".
+     * @param time The available time slot to filter by. Defaults to "null".
+     * @param specialty The doctor's specialty to filter by. Defaults to "null".
+     * @return ResponseEntity containing a map with the filtered list of doctors.
+     */
+    @GetMapping("/filter/{name}/{time}/{specialty}") // NEW: Endpoint for filtering doctors
+    public ResponseEntity<Map<String, Object>> filterDoctors(
+            @PathVariable String name,
+            @PathVariable String time,
+            @PathVariable String specialty) {
+        Map<String, Object> response = new HashMap<>();
+
+        // Ensure "null" string from path variables are converted to actual null for service layer
+        String actualName = "null".equalsIgnoreCase(name) ? null : name;
+        String actualTime = "null".equalsIgnoreCase(time) ? null : time;
+        String actualSpecialty = "null".equalsIgnoreCase(specialty) ? null : specialty;
+
+        List<Doctor> doctors = doctorService.filterDoctors(actualName, actualTime, actualSpecialty);
+        response.put("doctors", doctors);
+        response.put("message", "Doctors filtered successfully.");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // --- NEW ENDPOINTS for Doctor Available Times ---

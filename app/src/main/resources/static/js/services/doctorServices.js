@@ -315,13 +315,19 @@ export async function saveDoctor(doctor, token) {
 
 /**
  * Filters doctors based on name, time availability, and specialty. (Public view)
+ * Corrected to always send 'null' string for empty filter values.
  * @param {string} name - Doctor's name (optional).
  * @param {string} time - Available time slot (optional, e.g., "09:00 - 10:00").
  * @param {string} specialty - Doctor's specialty (optional).
  * @returns {Array<Object>} - A filtered array of doctor objects, or an empty array if an error occurs.
  */
-export async function filterDoctors(name = 'null', time = 'null', specialty = 'null') { // Default to 'null' strings for path variables
-    const url = `${DOCTOR_API}/filter/${encodeURIComponent(name)}/${encodeURIComponent(time)}/${encodeURIComponent(specialty)}`;
+export async function filterDoctors(name = '', time = '', specialty = '') { // Default to empty strings
+    // Ensure 'null' string is sent for empty filter values in URL path
+    const formattedName = name.trim() !== '' ? encodeURIComponent(name.trim()) : 'null';
+    const formattedTime = time.trim() !== '' ? encodeURIComponent(time.trim()) : 'null';
+    const formattedSpecialty = specialty.trim() !== '' ? encodeURIComponent(specialty.trim()) : 'null';
+
+    const url = `${DOCTOR_API}/filter/${formattedName}/${formattedTime}/${formattedSpecialty}`;
 
     try {
         const response = await fetch(url, {

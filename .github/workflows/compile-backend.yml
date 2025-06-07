@@ -15,6 +15,6 @@ jobs:
 
       - name: Compile with Maven
         run: |
-          cd back-end
+          cd app
           ls -l
           ./mvnw clean compile

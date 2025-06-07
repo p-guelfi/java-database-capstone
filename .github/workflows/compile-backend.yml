@@ -17,4 +17,4 @@ jobs:
         run: |
           cd app
           ls -l
-          ./mvnw clean compile
+          mvn clean compile
